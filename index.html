@@ -644,4 +644,10 @@ function addNutrition(){nutritionReset();const c=+document.getElementById('nCal'
 function prepareFoodPhoto(){const f=document.getElementById('foodPhoto').files[0];const box=document.getElementById('photoPreview');if(!f){box.textContent='Escolhe ou tira uma foto primeiro.';return;}box.textContent='📸 Foto carregada: '+f.name+' — pronta para análise no ChatGPT.';}
 window.addFoodToDraft=addFoodToDraft; window.saveFoodMeal=saveFoodMeal; window.removeDraftFood=removeDraftFood; window.addNutrition=addNutrition; window.deleteTodayMeal=deleteTodayMeal;
 nutritionReset();initFoodList();renderNutrition();renderSystem();
-</script><div id="levelup" class="levelup-overlay"><div class="levelup-box"><div class="sys-small">SYSTEM NOTIFICATION</div><div class="levelup-rank" id="levelupRank">D</div><h2 id="levelupTitle">RANK UP!</h2><p id="levelupEquip">AWAKENED GEAR desbloqueado</p><button onclick="closeLevelUp()">⚡ CONTINUAR</button></div></div></body></html>
+</script><div id="levelup" class="levelup-overlay"><div class="levelup-box"><div class="sys-small">SYSTEM NOTIFICATION</div><div class="levelup-rank" id="levelupRank">D</div><h2 id="levelupTitle">RANK UP!</h2><p id="levelupEquip">AWAKENED GEAR desbloqueado</p><button onclick="closeLevelUp()">⚡ CONTINUAR</button></div></div><script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js');
+  });
+}
+</script></body></html>
