@@ -515,7 +515,7 @@
 <div class="status-card"><div class="status-title">META INICIAL</div><div class="status-grid"><div><b>2500</b><span>KCAL</span></div><div><b>190g</b><span>PROTEÍNA</span></div><div><b>250g</b><span>CARB</span></div><div><b>75g</b><span>GORDURA</span></div></div></div>
 <div class="measure"><h3>📊 Hoje</h3><div class="small" id="nutSummary">0 kcal • 0g proteína • 0g carbo • 0g gordura</div><div class="progress"><div class="bar" id="nutCalBar"></div></div><div class="measure-grid"><label>Calorias<input id="nCal" type="number" placeholder="kcal"></label><label>Proteína<input id="nPro" type="number" placeholder="g"></label><label>Carboidratos<input id="nCarb" type="number" placeholder="g"></label><label>Gorduras<input id="nFat" type="number" placeholder="g"></label></div><button onclick="addNutrition()">➕ Adicionar manualmente</button></div>
 <div class="measure"><h3>🍽️ ADICIONAR REFEIÇÃO</h3><p class="small">Escolhe o alimento, coloca a quantidade em gramas e o sistema calcula automaticamente kcal e macros. Valores aproximados por 100 g.</p><div class="measure-grid"><label>Alimento<input id="foodName" list="foodList" type="text" placeholder="Ex.: frango"></label><label>Quantidade<input id="foodQty" type="number" min="1" step="1" placeholder="g"></label></div><datalist id="foodList"></datalist><button onclick="addFoodToDraft()">➕ Adicionar ingrediente</button><div id="foodDraft" class="small" style="margin-top:10px">Nenhum alimento adicionado.</div><button id="saveMealBtn" onclick="saveFoodMeal()" style="margin-top:10px;display:none">🍽️ Guardar refeição</button><div class="note">💡 Exemplo: adiciona 200 g de frango + 150 g de arroz + 1 banana. A app soma tudo e coloca a refeição no total do dia.</div></div>
-<div class="measure"><h3>📸 AI FOOD SCANNER</h3><p class="small">Tira uma foto da refeição. A foto fica associada ao registo do dia. A estimativa automática por IA precisa de um serviço de IA/API externo; esta versão não envia a tua foto para nenhum servidor.</p><input id="foodPhoto" type="file" accept="image/*" capture="environment"><div id="photoPreview" class="small"></div><button onclick="prepareFoodPhoto()">📷 Preparar foto para análise</button><div class="note">💡 Para uma estimativa realmente automática pela IA, podes enviar a foto aqui no ChatGPT e eu analiso os alimentos, porções e macros; depois colocamos os valores no diário.</div></div>
+<div class="measure"><h3>📸 AI FOOD SCANNER</h3><p class="small">Tira uma foto da refeição. A foto fica associada ao registo do dia. A estimativa automática por IA precisa de um serviço de IA/API externo; esta versão não envia a tua foto para nenhum servidor.</p><input id="foodPhoto" type="file" accept="image/*" capture="environment"><div id="photoPreview" class="small"></div><button onclick="prepareFoodPhoto()">📷 Preparar foto para análise</button><div class="note">💡 Para uma estimativa realmente automática pela IA, podes enviar a foto ao Claude (ou ao Jarvis) e ele analisa os alimentos, porções e macros; depois colocamos os valores no diário.</div></div>
 <div class="measure"><h3>🎯 Sugestão de meta</h3><p class="small">Para 95 kg, 1,70 m e trabalho físico, 2.500 kcal e ~190 g de proteína são um ponto de partida, não um valor definitivo. Ajusta após 2 semanas usando peso médio, energia e desempenho.</p></div>
 <div class="measure"><h3>📖 DIÁRIO DE HOJE</h3><div id="mealHistory" class="small">Nenhuma refeição registada.</div></div><div class="measure"><h3>📅 HISTÓRICO DOS DIAS</h3><p class="small">Consulta o que comeste em cada dia, incluindo os alimentos e quantidades.</p><div id="nutritionHistory" class="small">Ainda não há histórico.</div></div>
 </div>
@@ -641,7 +641,7 @@ function renderNutritionHistory(){const box=document.getElementById('nutritionHi
 function deleteTodayMeal(i){nutritionReset();const m=N.meals[i];if(!m)return;N.cal=Math.max(0,+(N.cal-(Number(m.cal)||0)).toFixed(1));N.pro=Math.max(0,+(N.pro-(Number(m.pro)||0)).toFixed(1));N.carb=Math.max(0,+(N.carb-(Number(m.carb)||0)).toFixed(1));N.fat=Math.max(0,+(N.fat-(Number(m.fat)||0)).toFixed(1));N.meals.splice(i,1);saveN();renderNutrition();}
 function renderNutrition(){nutritionReset();document.getElementById('nutSummary').textContent=N.cal+' kcal • '+N.pro+'g proteína • '+N.carb+'g carbo • '+N.fat+'g gordura';document.getElementById('nutCalBar').style.width=Math.min(100,N.cal/2500*100)+'%';document.getElementById('mealHistory').innerHTML=N.meals.length?N.meals.map((m,i)=>'<div style="padding:9px 0;border-bottom:1px solid #292c32"><b>🍽️ Refeição '+(i+1)+(m.time?' • '+m.time:'')+'</b> — '+m.cal+' kcal • '+m.pro+'g P • '+m.carb+'g C • '+m.fat+'g G'+foodListHtml(m)+'<div style="margin-top:7px"><button type="button" onclick="deleteTodayMeal('+i+')" style="padding:7px 10px;border-radius:9px">🗑️ Eliminar refeição</button></div></div>').join(''):'Nenhuma refeição registada hoje.';renderFoodDraft();renderNutritionHistory();}
 function addNutrition(){nutritionReset();const c=+document.getElementById('nCal').value||0,p=+document.getElementById('nPro').value||0,cb=+document.getElementById('nCarb').value||0,f=+document.getElementById('nFat').value||0;if(!c&&!p&&!cb&&!f)return;N.cal+=c;N.pro+=p;N.carb+=cb;N.fat+=f;N.meals.push({time:new Date().toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'}),cal:c,pro:p,carb:cb,fat:f,foods:[]});saveN();renderNutrition();['nCal','nPro','nCarb','nFat'].forEach(id=>document.getElementById(id).value='');}
-function prepareFoodPhoto(){const f=document.getElementById('foodPhoto').files[0];const box=document.getElementById('photoPreview');if(!f){box.textContent='Escolhe ou tira uma foto primeiro.';return;}box.textContent='📸 Foto carregada: '+f.name+' — pronta para análise no ChatGPT.';}
+function prepareFoodPhoto(){const f=document.getElementById('foodPhoto').files[0];const box=document.getElementById('photoPreview');if(!f){box.textContent='Escolhe ou tira uma foto primeiro.';return;}box.textContent='📸 Foto carregada: '+f.name+' — pronta para análise no Claude.';}
 window.addFoodToDraft=addFoodToDraft; window.saveFoodMeal=saveFoodMeal; window.removeDraftFood=removeDraftFood; window.addNutrition=addNutrition; window.deleteTodayMeal=deleteTodayMeal;
 nutritionReset();initFoodList();renderNutrition();renderSystem();
 </script><div id="levelup" class="levelup-overlay"><div class="levelup-box"><div class="sys-small">SYSTEM NOTIFICATION</div><div class="levelup-rank" id="levelupRank">D</div><h2 id="levelupTitle">RANK UP!</h2><p id="levelupEquip">AWAKENED GEAR desbloqueado</p><button onclick="closeLevelUp()">⚡ CONTINUAR</button></div></div><script>
@@ -650,4 +650,56 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js');
   });
 }
-</script></body></html>
+</script><script>
+/* Registo de treino: guarda Peso, Reps, RIR e ✓ por semana, dia e exercício (no próprio telemóvel). */
+(function(){
+  const KEY='treinoLogs1', WKEY='treinoSemana1';
+  const weekSel=document.getElementById('week');
+  let L={};
+  try{L=JSON.parse(localStorage.getItem(KEY))||{};}catch(e){L={};}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(L));}catch(e){}}
+  function wk(){return weekSel?weekSel.selectedIndex+1:1;}
+  function cards(){
+    const out=[];
+    document.querySelectorAll('section.day').forEach(sec=>{
+      const day=sec.dataset.day;
+      sec.querySelectorAll('article.exercise').forEach(a=>{
+        const h=a.querySelector('h3'), log=a.querySelector('.log');
+        if(!h||!log)return;
+        const ins=log.querySelectorAll('input');
+        out.push({day,ex:h.textContent.trim(),ins,btn:log.querySelector('.done')});
+      });
+    });
+    return out;
+  }
+  const BASE=['kg','reps','2'];
+  function get(w,day,ex){return (((L[w]||{})[day]||{})[ex])||null;}
+  function load(){
+    const w=wk();
+    cards().forEach(c=>{
+      const r=get(w,c.day,c.ex), p=get(w-1,c.day,c.ex);
+      ['kg','reps','rir'].forEach((k,i)=>{
+        const inp=c.ins[i]; if(!inp)return;
+        inp.value=(r&&r[k]!=null&&r[k]!=='')?r[k]:'';
+        inp.placeholder=(p&&p[k]!=null&&p[k]!=='')?('ant. '+p[k]):BASE[i];
+      });
+      if(c.btn)c.btn.classList.toggle('ok',!!(r&&r.ok));
+    });
+    if(typeof updateProgress==='function')updateProgress();
+  }
+  function store(c){
+    const w=wk();
+    L[w]=L[w]||{}; L[w][c.day]=L[w][c.day]||{};
+    L[w][c.day][c.ex]={kg:c.ins[0]?.value||'',reps:c.ins[1]?.value||'',rir:c.ins[2]?.value||'',ok:!!c.btn?.classList.contains('ok'),data:new Date().toISOString().slice(0,10)};
+    save();
+  }
+  cards().forEach(c=>{
+    c.ins.forEach(inp=>inp.addEventListener('input',()=>store(c)));
+    if(c.btn)c.btn.addEventListener('click',()=>store(c));
+  });
+  try{const s=parseInt(localStorage.getItem(WKEY));if(weekSel&&s>=1&&s<=weekSel.options.length)weekSel.selectedIndex=s-1;}catch(e){}
+  if(weekSel)weekSel.addEventListener('change',()=>{try{localStorage.setItem(WKEY,wk());}catch(e){}load();});
+  load();
+})();
+</script>
+</body></html>
